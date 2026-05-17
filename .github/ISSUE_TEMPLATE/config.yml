@@ -1,0 +1,6 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Project Documentation
+    url: https://github.com/your-username/real-time-face-hand-gesture
+    about: Check the README and docs before opening a new issue.
+

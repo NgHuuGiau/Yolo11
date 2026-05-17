@@ -1,0 +1,55 @@
+# Python cache and build artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE and OS files
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+Desktop.ini
+
+# Project runtime outputs
+outputs/videos/*
+!outputs/videos/.gitkeep
+outputs/screenshots/*
+!outputs/screenshots/.gitkeep
+runs/detect/*
+!runs/detect/.gitkeep
+runs/train/*
+!runs/train/.gitkeep
+
+# Local data and temporary media
+data/videos/*
+!data/videos/.gitkeep
+data/images/*
+!data/images/.gitkeep
+data/datasets/*
+!data/datasets/.gitkeep
+
+# Large model files
+*.pt
+*.onnx
+*.engine
+
+# Keep project model docs and placeholders tracked
+!models/
+!models/.gitkeep
+!models/README.md
+
