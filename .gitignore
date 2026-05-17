@@ -45,6 +45,7 @@ data/datasets/*
 
 # Large model files
 *.pt
+*.task
 *.onnx
 *.engine
 
@@ -52,4 +53,3 @@ data/datasets/*
 !models/
 !models/.gitkeep
 !models/README.md
-

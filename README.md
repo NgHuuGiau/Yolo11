@@ -188,6 +188,13 @@ Thư mục `models/` nên chứa:
 
 Nếu thiếu, chương trình hoặc script kiểm tra hệ thống sẽ báo rõ.
 
+Lưu ý:
+
+- Các file model là file nhị phân dung lượng lớn.
+- Về mặt chạy chương trình thì cần có.
+- Về mặt quản lý GitHub thì **không nên upload trực tiếp** các file model lên repo công khai nếu không thật sự cần.
+- Cách tốt hơn là giữ `models/README.md` để hướng dẫn tải model, còn file model thì để local.
+
 ## Cách chạy kiểm tra hệ thống
 
 ### Kiểm tra nhanh môi trường
@@ -209,6 +216,67 @@ Script này sẽ kiểm tra:
 
 ```powershell
 python -m unittest tests.test_system
+```
+
+## File nên upload và không nên upload
+
+### Nên upload lên GitHub
+
+- toàn bộ mã nguồn trong `src/`
+- `main.py`
+- `config.py`
+- `requirements.txt`
+- `README.md`
+- `LICENSE`
+- `CONTRIBUTING.md`
+- `.github/`
+- `docs/`
+- `scripts/`
+- `tests/`
+- các file `.gitkeep`
+- `models/README.md`
+
+### Không nên upload lên GitHub
+
+- `venv/`
+- `__pycache__/`
+- `.pytest_cache/`
+- `.mypy_cache/`
+- `.ruff_cache/`
+- `outputs/videos/`
+- `outputs/screenshots/`
+- `runs/detect/`
+- `runs/train/`
+- dữ liệu riêng trong `data/videos/`, `data/images/`, `data/datasets/`
+- file model nhị phân như:
+  - `*.pt`
+  - `*.task`
+  - `*.onnx`
+  - `*.engine`
+
+### Vì sao không nên upload các file đó
+
+- `venv/`, cache, output: chỉ là file phát sinh, làm repo nặng và bẩn
+- `data/`: có thể chứa dữ liệu riêng, video lớn hoặc dữ liệu không nên công khai
+- `models/*.pt`, `models/*.task`: là file binary lớn, dễ làm repo phình to và khó quản lý version
+
+### Cách làm đúng với thư mục models
+
+Thay vì upload trực tiếp model, nên:
+
+1. giữ lại `models/README.md`
+2. mô tả tên file cần có
+3. hướng dẫn người dùng tự tải hoặc để chương trình tự tải khi cần
+
+Ví dụ:
+
+```text
+models/
+├── README.md
+├── .gitkeep
+├── yolo11s.pt        <- local only, không commit
+├── yolo11m.pt        <- local only, không commit
+└── hand_landmarker.task <- local only, không commit
 ```
 
 ## Cách chạy chương trình
@@ -338,3 +406,19 @@ Dự án hiện dùng `MIT License`.
 - [models/README.md](models/README.md)
 - [CONTRIBUTING.md](CONTRIBUTING.md)
 
+## Kết luận về mức độ đầy đủ của README
+
+Ở trạng thái hiện tại, `README.md` đã đủ để:
+
+- hiểu mục tiêu dự án
+- hiểu cấu trúc thư mục
+- cài môi trường
+- kiểm tra hệ thống
+- chạy webcam hoặc video
+- biết file nào nên và không nên upload lên GitHub
+
+Nếu muốn tài liệu còn bài bản hơn nữa, bước tiếp theo hợp lý là:
+
+- chuẩn hóa toàn bộ `docs/project_description.md`
+- chuẩn hóa `docs/user_guide.md`
+- thêm ảnh minh họa giao diện thực tế vào `docs/` hoặc `assets/`
