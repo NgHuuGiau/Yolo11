@@ -31,10 +31,10 @@ python main.py
 Hệ thống tự động detect GPU, tải model, tối ưu TensorRT. Không cần cấu hình gì thêm.
 
 | Lệnh | Mô tả |
-|---|---|
-| `python main.py` | Chạy mặc định (YOLO11m, ~49 FPS) |
-| `python main.py --benchmark` | Đo FPS tất cả model |
-| `python main.py --model-version x --imgsz 800` | Độ chính xác cao nhất |
+|---|---|---|
+| `python main.py` | Chạy mặc định — tự động chọn config tối ưu |
+| `python main.py --benchmark` | Đo FPS tất cả model trên máy bạn |
+| `python main.py --model-version x --imgsz 800` | Ép dùng model lớn nhất |
 | `python main.py --track --classes "person"` | Tracking + lọc đối tượng |
 | `python main.py --optimize tensorrt` | Tăng tốc TensorRT |
 | `python web_app.py` | Mở giao diện Web |
@@ -98,18 +98,9 @@ Yolo11/
 
 ---
 
-## Hiệu năng (RTX 3050 Ti 4GB)
+## Hiệu năng
 
-| Model | imgsz | FPS |
-|---|---|---|
-| YOLO11n | 416 | ~67 |
-| YOLO11s | 640 | ~76 |
-| **YOLO11m** | **640** | **~49** |
-| YOLO11l | 640 | ~46 |
-| YOLO11x | 640 | ~22 |
-| YOLO11x | 800 | ~15 |
-
-Khuyến nghị: `python main.py` (mặc định, YOLO11m 49 FPS)
+Hệ thống tự động phát hiện GPU/VRAM và chọn model + image size phù hợp nhất với cấu hình máy bạn. Dùng lệnh `--benchmark` để đo FPS thực tế trên phần cứng của bạn.
 
 ---
 
