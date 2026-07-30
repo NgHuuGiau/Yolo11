@@ -2,17 +2,18 @@
 
 **Nhận diện vật thể, theo dõi bàn tay và nhận dạng cử chỉ theo thời gian thực với YOLO11 + MediaPipe**
 
-[![Python 3.10+](https://img.shields.io/badge/Python_3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
-[![YOLO11](https://img.shields.io/badge/YOLO11-FF6F00?style=for-the-badge&logo=huggingface&logoColor=white)](https://ultralytics.com)
-[![MediaPipe](https://img.shields.io/badge/MediaPipe-00C853?style=for-the-badge&logo=google&logoColor=white)](https://mediapipe.dev)
-[![OpenCV](https://img.shields.io/badge/OpenCV-5C3EE8?style=for-the-badge&logo=opencv&logoColor=white)](https://opencv.org)
-[![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)](https://pytorch.org)
-[![CUDA](https://img.shields.io/badge/CUDA-76B900?style=for-the-badge&logo=nvidia&logoColor=white)](https://nvidia.com)
-[![Flask](https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com)
-[![TensorRT](https://img.shields.io/badge/TensorRT-76B900?style=for-the-badge&logo=nvidia&logoColor=white)](https://developer.nvidia.com/tensorrt)
-[![CI](https://img.shields.io/badge/CI_passing-4CAF50?style=for-the-badge&logo=githubactions&logoColor=white)]()
-[![Tests](https://img.shields.io/badge/36_tests-4CAF50?style=for-the-badge&logo=pytest&logoColor=white)]()
-[![License](https://img.shields.io/badge/MIT-e6e6e6?style=for-the-badge&logo=opensourceinitiative&logoColor=black)]()
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Windows](https://img.shields.io/badge/Windows-11%2B-0078D6?logo=windows&logoColor=white)](https://www.microsoft.com/windows)
+[![PowerShell](https://img.shields.io/badge/PowerShell-7%2B-5391FE?logo=powershell&logoColor=white)](https://learn.microsoft.com/powershell/)
+[![Ultralytics](https://img.shields.io/badge/Ultralytics-YOLO11-111111)](https://www.ultralytics.com/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-Deep%20Learning-EE4C2C?logo=pytorch&logoColor=white)](https://pytorch.org/)
+[![CUDA](https://img.shields.io/badge/CUDA-12.6-76B900?logo=nvidia&logoColor=white)](https://developer.nvidia.com/cuda)
+[![TensorRT](https://img.shields.io/badge/TensorRT-10-76B900?logo=nvidia&logoColor=white)](https://developer.nvidia.com/tensorrt)
+[![OpenCV](https://img.shields.io/badge/OpenCV-Computer%20Vision-5C3EE8?logo=opencv&logoColor=white)](https://opencv.org/)
+[![MediaPipe](https://img.shields.io/badge/MediaPipe-Hand%20Tracking-00C853?logo=google&logoColor=white)](https://mediapipe.dev/)
+[![NumPy](https://img.shields.io/badge/NumPy-Array%20Computing-013243?logo=numpy&logoColor=white)](https://numpy.org/)
+[![Flask](https://img.shields.io/badge/Flask-Web%20Streaming-000000?logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
+[![License](https://img.shields.io/badge/License-MIT-yellow?logo=opensourceinitiative&logoColor=white)](LICENSE)
 
 ---
 
@@ -53,16 +54,46 @@ Hệ thống tự động detect GPU, tải model, tối ưu TensorRT. Không c�
 ## Cấu trúc
 
 ```
-├── src/          # Mã nguồn chính (7 modules)
-├── models/       # Model weights (tự động tải)
-├── tests/        # 36 bài kiểm thử
-├── docs/         # Tài liệu hướng dẫn
-├── scripts/      # system_check.py
-├── outputs/      # screenshots + videos
-├── config.py     # Cấu hình tập trung
-├── main.py       # Giao diện OpenCV
-├── web_app.py    # Giao diện Flask
-└── pyproject.toml
+Yolo11/
+├── .github/
+│   ├── workflows/
+│   │   └── ci.yml                    # CI pipeline (GitHub Actions)
+│   ├── ISSUE_TEMPLATE/
+│   │   ├── bug_report.md
+│   │   ├── feature_request.md
+│   │   └── config.yml
+│   └── pull_request_template.md
+├── docs/
+│   ├── project_description.md        # Mô tả kiến trúc hệ thống
+│   └── user_guide.md                 # Hướng dẫn sử dụng chi tiết
+├── models/                           # Model weights (tự động tải)
+│   ├── yolo11n.pt ~ yolo11x.pt       # 5 phiên bản YOLO11
+│   └── hand_landmarker.task          # MediaPipe hand model
+├── outputs/
+│   ├── screenshots/                  # Ảnh chụp màn hình (phím S)
+│   └── videos/                       # Video ghi lại
+├── scripts/
+│   └── system_check.py               # Kiểm tra môi trường
+├── src/
+│   ├── __init__.py
+│   ├── device_manager.py             # Chọn thiết bị CUDA/CPU
+│   ├── face_detector.py              # YOLO object detection + tracking + FP16
+│   ├── fps_counter.py                # Đo FPS
+│   ├── gesture_recognizer.py         # Nhận dạng cử chỉ + smoothing
+│   ├── hand_detector.py              # MediaPipe hand landmarks
+│   ├── hardware_profiler.py          # Detect GPU/VRAM + benchmark + TensorRT
+│   └── utils.py                      # Vẽ overlay, chụp ảnh
+├── tests/
+│   ├── __init__.py
+│   └── test_system.py                # 36 bài kiểm thử
+├── config.py                         # Cấu hình tập trung
+├── main.py                           # Giao diện OpenCV Desktop
+├── web_app.py                        # Giao diện Web Flask
+├── pyproject.toml                    # Cấu hình Python hiện đại
+├── requirements.txt                  # Thư viện phụ thuộc
+├── .gitignore
+├── LICENSE
+└── README.md
 ```
 
 ---
