@@ -1,55 +1,52 @@
-# Python cache and build artifacts
+# Byte-compiled
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
 *.so
+
+# Build
+build/
+dist/
 *.egg-info/
+
+# Cache
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
 .coverage
 htmlcov/
-build/
-dist/
 
-# Virtual environments
+# Virtual envs
 venv/
 .venv/
 env/
 
-# IDE and OS files
+# IDE
 .vscode/
 .idea/
 *.swp
 Thumbs.db
 Desktop.ini
 
-# Project runtime outputs
+# Outputs (keep dirs)
 outputs/videos/*
 !outputs/videos/.gitkeep
 outputs/screenshots/*
 !outputs/screenshots/.gitkeep
-runs/detect/*
-!runs/detect/.gitkeep
-runs/train/*
-!runs/train/.gitkeep
 
-# Local data and temporary media
-data/videos/*
-!data/videos/.gitkeep
-data/images/*
-!data/images/.gitkeep
-data/datasets/*
-!data/datasets/.gitkeep
-
-# Large model files
-*.pt
-*.task
-*.onnx
-*.engine
-
-# Keep project model docs and placeholders tracked
-!models/
+# Models (too large for git, auto-downloaded)
+models/*.pt
+models/*.engine
+models/*.onnx
+models/*.task
 !models/.gitkeep
-!models/README.md
+
+# Ultralytics outputs
+runs/
+
+# Temp
+startup_output.txt
+startup.txt
+final_test.txt
+*.tmp

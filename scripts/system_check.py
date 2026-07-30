@@ -15,6 +15,13 @@ import config
 from src.device_manager import get_device
 from src.face_detector import FaceDetector
 from src.hand_detector import HandDetector
+from src.hardware_profiler import (
+    MODEL_TIERS,
+    TIER_ORDER,
+    detect_hardware,
+    print_hardware_report,
+    recommend_tier,
+)
 
 
 def print_status(name, ok, detail=""):
@@ -35,12 +42,14 @@ def main():
     gpu_name = torch.cuda.get_device_name(0) if cuda_ok else "CPU only"
     print_status("CUDA", cuda_ok, gpu_name)
 
-    for model_path in [
-        config.YOLO_MODEL_PATH,
-        config.OPTIONAL_YOLO_MODEL_PATH,
-        config.HAND_LANDMARKER_MODEL_PATH,
-    ]:
+    for tier_key in TIER_ORDER:
+        model_path = MODEL_TIERS[tier_key]["path"]
         print_status(f"Model exists: {model_path}", Path(model_path).exists())
+
+    print_status(
+        f"Model exists: {config.HAND_LANDMARKER_MODEL_PATH}",
+        Path(config.HAND_LANDMARKER_MODEL_PATH).exists(),
+    )
 
     device_info = get_device("auto")
     print_status("Device manager", True, f"selected={device_info['label']}")
@@ -74,6 +83,12 @@ def main():
     cap.release()
 
     print("=== CHECK COMPLETE ===")
+    print()
+
+    # Hardware report and model recommendation
+    hw = detect_hardware()
+    recommend_tier(hw)
+    print_hardware_report(hw)
 
 
 if __name__ == "__main__":

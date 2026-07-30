@@ -1,424 +1,252 @@
-# Real-Time Face and Hand Gesture Recognition System
+<div align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&height=200&color=gradient&text=Object%20%26%20Hand%20Detection&fontAlign=50&fontAlignY=40&desc=Nh%E1%BA%ADn%20di%E1%BB%87n%20v%E1%BA%ADt%20th%E1%BB%83%20%26%20b%C3%A0n%20tay%20th%E1%BB%9Di%20gian%20th%E1%BB%B1c&descAlign=50&descAlignY=60" width="100%"/>
+</div>
 
-**Tên tiếng Việt:** Hệ thống nhận diện khuôn mặt và bàn tay thời gian thực
+<div align="center" style="margin-top: -20px;">
 
-![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
-![OpenCV](https://img.shields.io/badge/OpenCV-Computer%20Vision-green)
-![MediaPipe](https://img.shields.io/badge/MediaPipe-Hand%20Landmarker-orange)
-![PyTorch](https://img.shields.io/badge/PyTorch-CUDA-red)
+# Hệ thống Nhận diện Vật thể & Cử chỉ Bàn tay
 
-## Giới thiệu
+**Nhận diện vật thể, theo dõi bàn tay và nhận dạng cử chỉ theo thời gian thực với YOLO11 + MediaPipe**
 
-Đây là dự án Python xử lý video theo thời gian thực từ webcam hoặc file video để:
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white)]()
+[![Ultralytics](https://img.shields.io/badge/Ultralytics-8.4-FF6F00?style=flat-square&logo=yolo&logoColor=white)]()
+[![MediaPipe](https://img.shields.io/badge/MediaPipe-0.10-00C853?style=flat-square)]()
+[![OpenCV](https://img.shields.io/badge/OpenCV-4.13-5C3EE8?style=flat-square&logo=opencv&logoColor=white)]()
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.12-EE4C2C?style=flat-square&logo=pytorch&logoColor=white)]()
+[![CUDA](https://img.shields.io/badge/CUDA-12.6-76B900?style=flat-square&logo=nvidia&logoColor=white)]()
+[![Flask](https://img.shields.io/badge/Flask-3.0-000000?style=flat-square&logo=flask&logoColor=white)]()
+[![TensorRT](https://img.shields.io/badge/TensorRT-10-76B900?style=flat-square)]()
+[![License](https://img.shields.io/badge/Gi%E1%BA%A5y%20ph%C3%A9p-MIT-yellow?style=flat-square)]()
+[![CI](https://img.shields.io/badge/CI-OK-4CAF50?style=flat-square)]()
+[![Tests](https://img.shields.io/badge/Tests-36%2F36-4CAF50?style=flat-square)]()
 
-- nhận diện khuôn mặt
-- phát hiện bàn tay
-- vẽ 21 điểm landmark và skeleton bàn tay
-- hiển thị FPS, device, model và thanh tiến trình trực quan trên màn hình
+---
 
-Phiên bản hiện tại của dự án đã được chỉnh theo nhu cầu sử dụng thực tế:
+[🚀 Bắt đầu nhanh](#-bắt-đầu-nhanh) •
+[✨ Tính năng](#-tính-năng) •
+[📦 Cấu trúc](#-cấu-trúc-dự-án) •
+[⚙️ Cấu hình](#%EF%B8%8F-cấu-hình) •
+[📊 Hiệu năng](#-hiệu-năng) •
+[🌐 Web UI](#-web-ui) •
+[📚 Tài liệu](docs/)
 
-- tập trung vào **khuôn mặt** thay vì nhận diện cử chỉ
-- giữ lại phần **bàn tay** để hiển thị landmark
-- toàn bộ **đường trên tay hiển thị màu xanh lá**
-- có **system check** và **smoke test** để kiểm tra môi trường trước khi chạy
+---
 
-## Trạng thái hiện tại của dự án
+</div>
 
-Hiện tại code chạy theo hướng:
-
-- nhận diện khuôn mặt bằng `OpenCV Haar Cascade` khi `FACE_ONLY_MODE = True`
-- phát hiện bàn tay bằng `MediaPipe Hand Landmarker`
-- sử dụng `PyTorch CUDA` nếu có GPU NVIDIA
-- fallback sang CPU nếu CUDA không khả dụng
-- hỗ trợ model `YOLO11s` và `YOLO11m` trong thư mục `models/` cho các mở rộng sau này
-
-Lưu ý quan trọng:
-
-- Trong cấu hình hiện tại, phần nhận diện khuôn mặt đang ưu tiên `Haar Cascade` để bám sát nhu cầu "xác định khuôn mặt, không cần cử chỉ".
-- Hai model `YOLO11s` và `YOLO11m` vẫn được giữ trong `models/` vì chúng vẫn hữu ích nếu sau này bạn muốn bật lại chế độ dùng YOLO.
-
-## Tính năng chính
-
-- Nhận diện khuôn mặt theo thời gian thực
-- Nhận diện một hoặc nhiều bàn tay
-- Vẽ 21 landmarks bàn tay
-- Vẽ skeleton bàn tay màu xanh lá
-- Hiển thị tay trái/phải nếu MediaPipe trả về
-- Hiển thị FPS realtime
-- Hiển thị thiết bị xử lý: CUDA hoặc CPU
-- Hiển thị thanh tiến trình trên frame
-- Có kiểm tra hệ thống trước khi chạy
-- Có smoke test tự động cho các thành phần quan trọng
-
-## Công nghệ sử dụng
-
-- Python
-- OpenCV
-- MediaPipe
-- PyTorch
-- CUDA
-- NumPy
-- Ultralytics YOLO11
-- argparse
-- pathlib
-
-## Cấu trúc thư mục đúng và hợp lý
-
-Đây là cấu trúc nên dùng cho dự án hiện tại:
-
-```text
-real-time-face-hand-gesture/
-├── .github/
-│   ├── ISSUE_TEMPLATE/
-│   └── pull_request_template.md
-├── data/
-│   ├── datasets/
-│   ├── images/
-│   └── videos/
-├── docs/
-│   ├── project_description.md
-│   └── user_guide.md
-├── models/
-│   ├── hand_landmarker.task
-│   ├── yolo11s.pt
-│   ├── yolo11m.pt
-│   └── README.md
-├── outputs/
-│   ├── screenshots/
-│   └── videos/
-├── runs/
-│   ├── detect/
-│   └── train/
-├── scripts/
-│   └── system_check.py
-├── src/
-│   ├── __init__.py
-│   ├── device_manager.py
-│   ├── face_detector.py
-│   ├── fps_counter.py
-│   ├── gesture_recognizer.py
-│   ├── hand_detector.py
-│   └── utils.py
-├── tests/
-│   ├── __init__.py
-│   └── test_system.py
-├── .gitignore
-├── config.py
-├── CONTRIBUTING.md
-├── LICENSE
-├── main.py
-├── README.md
-└── requirements.txt
-```
-
-## Đánh giá lại cấu trúc hiện tại
-
-Sau khi rà lại, đây là kết luận:
-
-- `models/` là đúng chỗ để đặt `yolo11s.pt`, `yolo11m.pt`, `hand_landmarker.task`
-- `tests/` là đúng chỗ cho các file kiểm thử
-- `scripts/` là đúng chỗ cho `system_check.py`
-- `src/` là đúng chỗ cho toàn bộ module nghiệp vụ
-- `.github/` là đúng chỗ cho file liên quan GitHub
-- `venv/` nên tồn tại cục bộ nhưng không nên đưa lên GitHub
-- `__pycache__/` là file phát sinh, không nên giữ trong repo
-
-Những gì đã được chỉnh lại:
-
-- đã chuyển `system_check.py` từ thư mục gốc sang `scripts/system_check.py`
-- đã xóa `yolo11s.pt` và `yolo11m.pt` bị dư ở thư mục gốc
-- đã dọn `__pycache__/` phát sinh
-
-## Ý nghĩa từng file quan trọng
-
-### File gốc
-
-- `main.py`: file chạy chính
-- `config.py`: cấu hình mặc định của hệ thống
-- `requirements.txt`: danh sách thư viện cần cài
-- `README.md`: tài liệu giới thiệu và hướng dẫn sử dụng
-- `LICENSE`: giấy phép MIT
-- `CONTRIBUTING.md`: hướng dẫn đóng góp
-
-### Thư mục `src/`
-
-- `src/face_detector.py`: xử lý nhận diện khuôn mặt
-- `src/hand_detector.py`: xử lý bàn tay bằng MediaPipe
-- `src/fps_counter.py`: tính FPS
-- `src/device_manager.py`: chọn CUDA hoặc CPU
-- `src/utils.py`: hàm tiện ích vẽ panel, progress bar, resize, lưu file
-- `src/gesture_recognizer.py`: hiện đang không dùng trong luồng chạy chính nhưng vẫn được giữ lại để mở rộng về sau
-
-### Thư mục `scripts/`
-
-- `scripts/system_check.py`: kiểm tra nhanh môi trường, model, camera, CUDA
-
-### Thư mục `tests/`
-
-- `tests/test_system.py`: smoke test cho các thành phần chính
-
-## Cài đặt môi trường
-
-### Bước 1. Tạo môi trường ảo
+## 🚀 Bắt đầu nhanh
 
 ```powershell
+# 1. Clone dự án
+git clone <repo-url>
+cd Real-Time-Face-and-Hand-Gesture-Recognition-System
+
+# 2. Tạo môi trường ảo
 python -m venv venv
-```
-
-### Bước 2. Kích hoạt môi trường ảo
-
-```powershell
 venv\Scripts\activate
-```
 
-### Bước 3. Cài thư viện
-
-```powershell
+# 3. Cài thư viện
 pip install -r requirements.txt
+
+# 4. Chạy (tự động detect GPU, tải model, tối ưu TensorRT)
+python main.py
 ```
 
-## Model cần có
+> **Không cần cấu hình gì thêm.** Hệ thống tự động phát hiện GPU/VRAM, chọn model YOLO phù hợp, tải model nếu thiếu, và tối ưu TensorRT nếu có hỗ trợ.
 
-Thư mục `models/` nên chứa:
+### ⚡ Lệnh nhanh
 
-- `models/yolo11s.pt`
-- `models/yolo11m.pt`
-- `models/hand_landmarker.task`
+| Lệnh | Mô tả |
+|---|---|
+| `python main.py` | Chạy với cấu hình tối ưu (tự động) |
+| `python main.py --benchmark` | Đo FPS tất cả model |
+| `python main.py --model-version x --imgsz 800` | Độ chính xác cao nhất |
+| `python main.py --track --classes "person"` | Tracking + lọc đối tượng |
+| `python main.py --optimize tensorrt` | Tăng tốc TensorRT |
+| `python web_app.py` | Mở giao diện Web |
 
-Nếu thiếu, chương trình hoặc script kiểm tra hệ thống sẽ báo rõ.
+---
 
-Lưu ý:
+## ✨ Tính năng
 
-- Các file model là file nhị phân dung lượng lớn.
-- Về mặt chạy chương trình thì cần có.
-- Về mặt quản lý GitHub thì **không nên upload trực tiếp** các file model lên repo công khai nếu không thật sự cần.
-- Cách tốt hơn là giữ `models/README.md` để hướng dẫn tải model, còn file model thì để local.
+<div align="center">
 
-## Cách chạy kiểm tra hệ thống
+| Nhóm | Tính năng | Mô tả |
+|---|---|---|
+| **Nhận diện vật thể** | YOLO11 (n/s/m/l/x) | 5 phiên bản từ siêu nhẹ đến siêu nặng |
+| | Tự động detect phần cứng | Đo GPU/VRAM → chọn model phù hợp nhất |
+| | FP16 | Tính toán nửa độ chính xác, tăng gấp đôi tốc độ |
+| | TensorRT | Tự động xuất engine, tăng 2-3x FPS |
+| | Làm nóng model | Khởi tạo CUDA kernels trước khi chạy |
+| | Tracking vật thể | Gán ID cho từng đối tượng (ByteTrack) |
+| | Lọc lớp đối tượng | Chỉ detect các lớp mong muốn trong 80 lớp COCO |
+| **Nhận diện bàn tay** | 21 điểm landmark | Bộ xương bàn tay MediaPipe |
+| | Phân biệt tay trái/phải | Kèm độ tin cậy |
+| | Tự động thử lại | 3 lần nếu detect thất bại |
+| **Nhận dạng cử chỉ** | 11 cử chỉ | Nắm đấm, Xòe tay, Chỉ trỏ, Hòa bình, Like, Gọi, Súng, Rock, Ngón giữa, Người nhện, đếm ngón tay |
+| | Làm mịn tín hiệu | Cửa sổ 5 frame, loại nhiễu giật |
+| | Độ tin cậy | Phần trăm tin cậy cho từng cử chỉ |
+| | Lịch sử | 5 cử chỉ gần nhất |
+| **Độ tin cậy** | Tự động kết nối lại camera | Backoff theo cấp số nhân khi mất tín hiệu |
+| | Tắt ứng dụng an toàn | Giải phóng tài nguyên khi thoát |
+| | Web UI | Giao diện trình duyệt, bật/tắt overlay |
+| | Chụp ảnh | Nhấn phím `S` để chụp màn hình |
 
-### Kiểm tra nhanh môi trường
+</div>
+
+---
+
+## 📦 Cấu trúc dự án
+
+```
+├── .github/workflows/     # CI pipeline (GitHub Actions)
+├── docs/                  # Tài liệu hướng dẫn
+│   ├── project_description.md   # Mô tả kiến trúc
+│   └── user_guide.md            # Hướng dẫn sử dụng
+├── models/                # File model (tự động tải)
+│   ├── yolo11n.pt ~ yolo11x.pt
+│   └── hand_landmarker.task
+├── outputs/
+│   ├── screenshots/       # Ảnh chụp màn hình (phím S)
+│   └── videos/            # Video ghi lại
+├── scripts/
+│   └── system_check.py    # Kiểm tra môi trường
+├── src/                   # Mã nguồn chính
+│   ├── device_manager.py  # Chọn thiết bị CUDA/CPU
+│   ├── face_detector.py   # Suy luận YOLO + tracking
+│   ├── fps_counter.py     # Đo FPS
+│   ├── gesture_recognizer.py  # Nhận dạng cử chỉ
+│   ├── hand_detector.py   # Landmark bàn tay MediaPipe
+│   ├── hardware_profiler.py  # Detect GPU + benchmark
+│   └── utils.py           # Vẽ overlay, chụp ảnh
+├── tests/
+│   └── test_system.py     # 36 bài kiểm thử
+├── config.py              # Cấu hình tập trung
+├── main.py                # Giao diện OpenCV
+├── web_app.py             # Giao diện Web Flask
+├── pyproject.toml         # Cấu hình Python hiện đại
+└── requirements.txt       # Thư viện phụ thuộc
+```
+
+---
+
+## ⚙️ Cấu hình
+
+Tất cả cấu hình trong [`config.py`](config.py):
+
+### Thiết bị & Model
+
+| Biến | Mặc định | Mô tả |
+|---|---|---|
+| `CAMERA_WIDTH` | `1280` | Độ rộng camera |
+| `CAMERA_HEIGHT` | `720` | Độ cao camera |
+| `DEVICE` | `"auto"` | `"auto"`, `"cuda"` hoặc `"cpu"` |
+| `MODEL_TIER_KEY` | `"auto"` | Tự động hoặc chọn `n/s/m/l/x` |
+| `CONFIDENCE_THRESHOLD` | `0.5` | Ngưỡng tin cậy YOLO |
+| `YOLO_NMS_IoU` | `0.45` | Ngưỡng IoU khử trùng |
+
+### Tối ưu
+
+| Biến | Mặc định | Mô tả |
+|---|---|---|
+| `USE_FP16` | `True` | Tính toán nửa độ chính xác |
+| `AUTO_TENSORRT` | `True` | Tự động xuất engine TensorRT |
+| `OPTIMIZE` | `"none"` | Chế độ tối ưu: `"none"` / `"tensorrt"` |
+
+### Hiển thị
+
+| Biến | Mặc định | Mô tả |
+|---|---|---|
+| `SHOW_FACE_BOX` | `True` | Hiện khung bounding box |
+| `SHOW_HAND_LANDMARKS` | `True` | Hiện bộ xương bàn tay |
+
+### Cử chỉ
+
+| Biến | Mặc định | Mô tả |
+|---|---|---|
+| `GESTURE_SMOOTHING_WINDOW` | `5` | Số frame làm mịn |
+| `SHOW_GESTURE_CONFIDENCE` | `True` | Hiện % độ tin cậy |
+| `SHOW_GESTURE_HISTORY` | `True` | Hiện lịch sử cử chỉ |
+| `MAX_GESTURE_HISTORY` | `5` | Số cử chỉ lưu lại |
+
+---
+
+## 📊 Hiệu năng
+
+Đo trên **NVIDIA GeForce RTX 3050 Ti (4GB VRAM)**:
+
+| Model | imgsz | FPS | Mục đích |
+|---|---|---|---|
+| YOLO11n | 416 | ~67 | CPU / Tiết kiệm pin |
+| YOLO11s | 640 | ~76 | Nhanh & nhẹ |
+| **YOLO11m** | **640** | **~49** | **Cân bằng (mặc định)** |
+| YOLO11l | 640 | ~46 | Chất lượng cao |
+| YOLO11x | 640 | ~22 | Độ chính xác tối đa |
+| YOLO11x | 800 | ~15 | Cực kỳ chính xác |
+
+### Khuyến nghị
+
+- **Cân bằng:** `python main.py` (YOLO11m, 49 FPS)
+- **Nhanh nhất:** `python main.py --model-version s --optimize tensorrt` (100+ FPS)
+- **Chính xác nhất:** `python main.py --model-version x --imgsz 800` (15 FPS)
+
+---
+
+## 🌐 Web UI
 
 ```powershell
-python scripts/system_check.py
+pip install flask
+python web_app.py
 ```
 
-Script này sẽ kiểm tra:
+Mở trình duyệt tại [http://localhost:5000](http://localhost:5000)
 
-- import thư viện
-- phiên bản PyTorch
-- CUDA có hoạt động hay không
-- model có tồn tại hay không
-- detector có khởi tạo được không
-- camera có mở được không
+- Luồng video MJPEG thời gian thực
+- Bật/tắt overlay (bounding box, landmark, cử chỉ, lịch sử)
+- Bảng trạng thái trực tiếp (FPS, số lượng vật thể, cử chỉ hiện tại)
 
-### Chạy smoke test
+---
+
+## 🧪 Kiểm thử
 
 ```powershell
-python -m unittest tests.test_system
+# Kiểm tra môi trường
+python scripts\system_check.py
+
+# Chạy 36 bài kiểm thử
+python -m pytest tests -v
+
+# Kiểm tra toàn diện (dùng ";" thay "&&" trong PowerShell)
+python scripts\system_check.py; python -m pytest tests -v
 ```
 
-## File nên upload và không nên upload
+---
 
-### Nên upload lên GitHub
-
-- toàn bộ mã nguồn trong `src/`
-- `main.py`
-- `config.py`
-- `requirements.txt`
-- `README.md`
-- `LICENSE`
-- `CONTRIBUTING.md`
-- `.github/`
-- `docs/`
-- `scripts/`
-- `tests/`
-- các file `.gitkeep`
-- `models/README.md`
-
-### Không nên upload lên GitHub
-
-- `venv/`
-- `__pycache__/`
-- `.pytest_cache/`
-- `.mypy_cache/`
-- `.ruff_cache/`
-- `outputs/videos/`
-- `outputs/screenshots/`
-- `runs/detect/`
-- `runs/train/`
-- dữ liệu riêng trong `data/videos/`, `data/images/`, `data/datasets/`
-- file model nhị phân như:
-  - `*.pt`
-  - `*.task`
-  - `*.onnx`
-  - `*.engine`
-
-### Vì sao không nên upload các file đó
-
-- `venv/`, cache, output: chỉ là file phát sinh, làm repo nặng và bẩn
-- `data/`: có thể chứa dữ liệu riêng, video lớn hoặc dữ liệu không nên công khai
-- `models/*.pt`, `models/*.task`: là file binary lớn, dễ làm repo phình to và khó quản lý version
-
-### Cách làm đúng với thư mục models
-
-Thay vì upload trực tiếp model, nên:
-
-1. giữ lại `models/README.md`
-2. mô tả tên file cần có
-3. hướng dẫn người dùng tự tải hoặc để chương trình tự tải khi cần
-
-Ví dụ:
-
-```text
-models/
-├── README.md
-├── .gitkeep
-├── yolo11s.pt        <- local only, không commit
-├── yolo11m.pt        <- local only, không commit
-└── hand_landmarker.task <- local only, không commit
-```
-
-## Cách chạy chương trình
-
-### Chạy webcam mặc định
+## 🛠️ Tham khảo CLI
 
 ```powershell
-python main.py --source 0
+python main.py [TÙY_CHỌN]
+
+Tùy chọn:
+  --source              Chỉ số camera hoặc đường dẫn video (mặc định: 0)
+  --model-version       Phiên bản YOLO: auto, n, s, m, l, x
+  --imgsz               Kích thước ảnh: auto, 416, 512, 640, 800
+  --conf                Ngưỡng tin cậy (mặc định: 0.5)
+  --track               Bật theo dõi đối tượng
+  --classes             Lọc lớp: "person,cell phone"
+  --optimize            Tối ưu: none, tensorrt
+  --save-video          Ghi lại video
+  --benchmark           Đo FPS và thoát
 ```
 
-### Chạy bằng GPU CUDA
+---
 
-```powershell
-python main.py --source 0 --device cuda
-```
+## 📄 Giấy phép
 
-### Chạy bằng CPU
+[MIT License](LICENSE)
 
-```powershell
-python main.py --source 0 --device cpu
-```
+---
 
-### Chạy với video
-
-```powershell
-python main.py --source data/videos/test.mp4 --device cuda
-```
-
-### Chạy với model YOLO11m
-
-```powershell
-python main.py --model models/yolo11m.pt --source 0 --device cuda --imgsz 640
-```
-
-Lưu ý:
-
-- nếu `FACE_ONLY_MODE = True` thì khuôn mặt đang dùng `Haar Cascade`
-- khi đó tham số `--model` không phải là thành phần chính trong luồng nhận diện khuôn mặt hiện tại
-
-## Những gì hiển thị trên màn hình
-
-Khi chạy, chương trình sẽ hiển thị:
-
-- `FPS`
-- `Device`
-- `Model`
-- `Hand`
-- bounding box khuôn mặt
-- landmark bàn tay
-- skeleton bàn tay màu xanh lá
-- progress bar trực quan trên frame
-
-Ví dụ:
-
-```text
-FPS: 32.5
-Device: CUDA
-Model: HAAR FACE
-Hand: Right
-Tracking: 78%
-```
-
-## Giải thích log bạn thường thấy khi chạy
-
-Khi chạy MediaPipe, có thể xuất hiện một số dòng như:
-
-- `Created TensorFlow Lite XNNPACK delegate for CPU`
-- `inference_feedback_manager.cc`
-- `portable_clearcut_uploader.cc`
-
-Đây thường là log native từ MediaPipe hoặc TensorFlow Lite, không đồng nghĩa với việc chương trình bị lỗi.
-
-Nếu bạn bấm `Ctrl + C` trong lúc chương trình đang chạy webcam, hiện tại chương trình đã được chỉnh để thoát gọn hơn thay vì quăng lỗi thô kiểu `KeyboardInterrupt`.
-
-## Tối ưu cho RTX 3050 Ti 4GB VRAM
-
-Khuyến nghị:
-
-- dùng `--device cuda`
-- giữ độ phân giải camera `640x480`
-- nếu sau này bật lại chế độ YOLO cho face/object, ưu tiên `YOLO11s`
-- chỉ dùng `YOLO11m` khi thực sự cần
-- đóng các ứng dụng nặng đang chiếm GPU
-
-## Các vấn đề thường gặp
-
-### Không mở được webcam
-
-- thử `--source 1`
-- đóng ứng dụng đang chiếm camera
-- kiểm tra quyền camera trên Windows
-
-### CUDA không hoạt động
-
-Kiểm tra:
-
-```powershell
-python -c "import torch; print(torch.cuda.is_available())"
-```
-
-### Thiếu model
-
-Kiểm tra thư mục `models/` có đủ 3 file cần thiết hay chưa.
-
-### Chương trình chạy nhưng không hiện gì
-
-- kiểm tra bạn có đang dùng `--show false` không
-- nếu có, chương trình vẫn chạy nhưng không mở cửa sổ
-
-## Gợi ý tổ chức repo về sau
-
-Nếu dự án phát triển thêm, bạn có thể mở rộng theo hướng:
-
-- thêm `assets/` nếu có hình minh họa hoặc logo
-- thêm `notebooks/` nếu có notebook thử nghiệm
-- thêm `benchmarks/` nếu muốn lưu script đo FPS, latency, VRAM
-- thêm `configs/` nếu số cấu hình runtime tăng nhiều hơn hiện tại
-
-## License
-
-Dự án hiện dùng `MIT License`.
-
-## Tài liệu liên quan
-
-- [docs/project_description.md](docs/project_description.md)
-- [docs/user_guide.md](docs/user_guide.md)
-- [models/README.md](models/README.md)
-- [CONTRIBUTING.md](CONTRIBUTING.md)
-
-## Kết luận về mức độ đầy đủ của README
-
-Ở trạng thái hiện tại, `README.md` đã đủ để:
-
-- hiểu mục tiêu dự án
-- hiểu cấu trúc thư mục
-- cài môi trường
-- kiểm tra hệ thống
-- chạy webcam hoặc video
-- biết file nào nên và không nên upload lên GitHub
-
-Nếu muốn tài liệu còn bài bản hơn nữa, bước tiếp theo hợp lý là:
-
-- chuẩn hóa toàn bộ `docs/project_description.md`
-- chuẩn hóa `docs/user_guide.md`
-- thêm ảnh minh họa giao diện thực tế vào `docs/` hoặc `assets/`
+<div align="center">
+  <sub>Xây dựng với ❤️ bằng Python, YOLO11, MediaPipe và PyTorch</sub>
+</div>

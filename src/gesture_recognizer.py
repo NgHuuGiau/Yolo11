@@ -1,106 +1,119 @@
-import math
+import logging
+from collections import deque
+from typing import Any
+
+import config
+
+logger = logging.getLogger(__name__)
+
+FINGERTIP_IDS = [4, 8, 12, 16, 20]
+PIP_IDS = [3, 6, 10, 14, 18]
+MCP_IDS = [2, 5, 9, 13, 17]
+INDEX_MCP = 5
+
+
+def finger_states(landmarks: list) -> list:
+    tips = [landmarks[i] for i in FINGERTIP_IDS]
+    pips = [landmarks[i] for i in PIP_IDS]
+    mcp = landmarks[INDEX_MCP]
+
+    extended = []
+    for i in range(5):
+        tip = tips[i]
+        pip = pips[i]
+        if i == 0:
+            thumb_tip_x = tip["px"]
+            thumb_ip_x = pip["px"]
+            mcp_x = mcp["px"]
+            extended.append(thumb_tip_x > thumb_ip_x if mcp_x < thumb_ip_x else thumb_tip_x < thumb_ip_x)
+        else:
+            extended.append(tip["py"] < pip["py"])
+    return extended
+
+
+def recognize_gesture(states: list) -> str:
+    count = sum(states)
+    if all(states):
+        return "Open Palm"
+    if not any(states):
+        return "Fist"
+    if states == [False, True, False, False, False]:
+        return "Pointing"
+    if states == [False, True, True, False, False]:
+        return "Peace"
+    if states == [True, False, False, False, True]:
+        return "Call Me"
+    if states == [True, False, False, False, False]:
+        return "Thumbs Up"
+    if states == [True, True, False, False, False]:
+        return "Gun"
+    if states == [False, False, True, False, False]:
+        return "Middle Finger"
+    if states == [True, True, False, False, True]:
+        return "Rock"
+    if states == [False, True, False, False, True]:
+        return "Spiderman"
+    if count == 2:
+        return "Two Fingers"
+    if count == 3:
+        return "Three Fingers"
+    if count == 4:
+        return "Four Fingers"
+    return f"{count} Fingers"
 
 
 class GestureRecognizer:
-    FINGER_TIPS = {
-        "thumb": 4,
-        "index": 8,
-        "middle": 12,
-        "ring": 16,
-        "pinky": 20,
-    }
+    def __init__(self, window: int = 5):
+        self.window = window
+        self._hand_histories: dict = {}
 
-    FINGER_PIPS = {
-        "thumb": 3,
-        "index": 6,
-        "middle": 10,
-        "ring": 14,
-        "pinky": 18,
-    }
+    def _history_key(self, hand: dict) -> str:
+        return hand.get("handedness", "unknown")
 
-    def recognize(self, landmarks):
-        if not landmarks or len(landmarks) != 21:
-            return "Unknown"
+    def _smooth(self, hand: dict, raw_gesture: dict) -> dict:
+        key = self._history_key(hand)
+        if key not in self._hand_histories:
+            self._hand_histories[key] = deque(maxlen=self.window)
 
-        finger_states = self.count_fingers(landmarks, return_states=True)
-        fingers_up = sum(finger_states.values())
+        states = finger_states(hand.get("landmarks", []))
+        self._hand_histories[key].append(states)
 
-        if self.detect_ok_gesture(landmarks):
-            return "OK"
-        if self.detect_like_gesture(landmarks, finger_states):
-            return "Like"
-        if self.detect_peace_gesture(finger_states):
-            return "Peace"
-        if fingers_up == 0:
-            return "Fist"
-        if fingers_up == 1 and finger_states["index"]:
-            return "One Finger"
-        if fingers_up == 2 and finger_states["index"] and finger_states["middle"]:
-            return "Two Fingers"
-        if self.detect_stop_gesture(landmarks, finger_states):
-            return "Stop"
-        if fingers_up >= 4:
-            return "Open Hand"
-        return "Unknown"
+        if len(self._hand_histories[key]) < self.window:
+            return raw_gesture
 
-    def count_fingers(self, landmarks, return_states=False):
-        states = {
-            finger: self.is_finger_up(landmarks, finger)
-            for finger in ["thumb", "index", "middle", "ring", "pinky"]
-        }
-        return states if return_states else sum(states.values())
+        smoothed = []
+        for i in range(5):
+            vals = [h[i] for h in self._hand_histories[key]]
+            smoothed.append(sum(vals) > len(vals) // 2)
 
-    def is_finger_up(self, landmarks, finger):
-        tip_idx = self.FINGER_TIPS[finger]
-        pip_idx = self.FINGER_PIPS[finger]
+        smooth_gesture = recognize_gesture(smoothed)
+        conf = sum(smoothed) / 5
 
-        if finger == "thumb":
-            wrist_x = landmarks[0]["x"]
-            thumb_tip_x = landmarks[tip_idx]["x"]
-            thumb_pip_x = landmarks[pip_idx]["x"]
-            return abs(thumb_tip_x - wrist_x) > abs(thumb_pip_x - wrist_x)
+        raw_gesture["gesture"] = smooth_gesture
+        raw_gesture["confidence"] = conf
+        return raw_gesture
 
-        return landmarks[tip_idx]["y"] < landmarks[pip_idx]["y"]
+    def detect(self, hands: list) -> Any:
+        results = []
+        for hand in hands:
+            landmarks = hand.get("landmarks", [])
+            if len(landmarks) < 21:
+                continue
+            states = finger_states(landmarks)
+            raw_name = recognize_gesture(states)
+            raw_conf = sum(states) / 5
+            raw = {"gesture": raw_name, "handedness": hand.get("handedness", "Unknown"), "confidence": raw_conf}
+            if self.window > 1:
+                raw = self._smooth(hand, raw)
+            results.append(raw)
+        return results
 
-    def detect_ok_gesture(self, landmarks):
-        thumb_tip = landmarks[self.FINGER_TIPS["thumb"]]
-        index_tip = landmarks[self.FINGER_TIPS["index"]]
-        distance = self._distance(thumb_tip, index_tip)
 
-        middle_up = self.is_finger_up(landmarks, "middle")
-        ring_up = self.is_finger_up(landmarks, "ring")
-        pinky_up = self.is_finger_up(landmarks, "pinky")
+_detector_instance = None
 
-        return distance < 0.06 and middle_up and ring_up and pinky_up
 
-    def detect_like_gesture(self, landmarks, finger_states):
-        thumb_up = finger_states["thumb"]
-        other_folded = not any(
-            finger_states[finger] for finger in ["index", "middle", "ring", "pinky"]
-        )
-        thumb_tip = landmarks[self.FINGER_TIPS["thumb"]]
-        wrist = landmarks[0]
-        return thumb_up and other_folded and thumb_tip["y"] < wrist["y"]
-
-    def detect_peace_gesture(self, finger_states):
-        return (
-            finger_states["index"]
-            and finger_states["middle"]
-            and not finger_states["ring"]
-            and not finger_states["pinky"]
-        )
-
-    def detect_stop_gesture(self, landmarks, finger_states):
-        if not all(finger_states.values()):
-            return False
-        index_tip = landmarks[self.FINGER_TIPS["index"]]
-        pinky_tip = landmarks[self.FINGER_TIPS["pinky"]]
-        spread = abs(index_tip["x"] - pinky_tip["x"])
-        return spread > 0.18
-
-    def _distance(self, point_a, point_b):
-        return math.sqrt(
-            (point_a["x"] - point_b["x"]) ** 2
-            + (point_a["y"] - point_b["y"]) ** 2
-        )
-
+def detect_gesture(hands: list) -> Any:
+    global _detector_instance
+    if _detector_instance is None:
+        _detector_instance = GestureRecognizer(window=config.GESTURE_SMOOTHING_WINDOW)
+    return _detector_instance.detect(hands)
