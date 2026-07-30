@@ -28,11 +28,11 @@ pip install -r requirements.txt
 python main.py
 ```
 
-Hệ thống tự động detect GPU, tải model, tối ưu TensorRT. Không cần cấu hình gì thêm.
+Hệ thống tự động phát hiện GPU/VRAM → đề xuất model + image size phù hợp nhất. Không cần cấu hình gì thêm.
 
 | Lệnh | Mô tả |
-|---|---|---|
-| `python main.py` | Chạy mặc định — tự động chọn config tối ưu |
+|---|---|
+| `python main.py` | Chạy — hệ thống tự động đề xuất config tối ưu dựa trên phần cứng |
 | `python main.py --benchmark` | Đo FPS tất cả model trên máy bạn |
 | `python main.py --model-version x --imgsz 800` | Ép dùng model lớn nhất |
 | `python main.py --track --classes "person"` | Tracking + lọc đối tượng |
@@ -46,7 +46,7 @@ Hệ thống tự động detect GPU, tải model, tối ưu TensorRT. Không c�
 - **YOLO11**: 5 phiên bản n/s/m/l/x, FP16, TensorRT, ByteTrack, lọc 80 lớp COCO
 - **MediaPipe Hands**: 21 điểm landmark, phân biệt trái/phải, thử lại 3 lần
 - **Cử chỉ**: 11 cử chỉ (Nắm đấm, Xòe tay, Chỉ trỏ, Hòa bình, Like, Gọi, Súng, Rock, Ngón giữa, Người nhện, đếm ngón), làm mịn 5 frame, độ tin cậy
-- **Tự động**: Detect GPU/VRAM → chọn model, auto TensorRT, warmup, reconnect camera
+- **Tự động**: Detect GPU/VRAM → đề xuất model tối ưu, auto TensorRT, warmup, reconnect camera
 - **Web UI**: Flask MJPEG stream, toggle overlay, bảng trạng thái
 
 ---
@@ -100,7 +100,7 @@ Yolo11/
 
 ## Hiệu năng
 
-Hệ thống tự động phát hiện GPU/VRAM và chọn model + image size phù hợp nhất với cấu hình máy bạn. Dùng lệnh `--benchmark` để đo FPS thực tế trên phần cứng của bạn.
+Hệ thống tự động phát hiện GPU/VRAM → đề xuất model + image size phù hợp nhất với cấu hình máy bạn. Dùng lệnh `--benchmark` để đo FPS thực tế và xem bảng đề xuất chi tiết.
 
 ---
 
